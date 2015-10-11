@@ -26,8 +26,8 @@ init genCount liveCells =
 -- Update --
 wrap: Int -> Int
 wrap int =
-  if | int < -400 -> 400
-     | int > 400 -> -400
+  if | int < -100 -> 100
+     | int > 100 -> -100
      | otherwise -> int
 
 neighbors: Cell -> List Cell
@@ -43,7 +43,13 @@ neighbors cell =
   , (wrap (fst cell + 1), wrap (snd cell - 1))
   ]
 
-
+neighborhood: List Cell -> List Cell
+neighborhood cells =
+  let
+    emptyHood = Set.fromList []
+    filledHood = List.foldl (Set.union << Set.fromList << neighbors) emptyHood cells
+  in
+    Set.toList (Set.diff filledHood (Set.fromList cells))
 
 procreate: List Cell -> List Cell
 procreate cells =
@@ -58,10 +64,9 @@ procreate cells =
       3 == List.length (Set.toList (family cell))
 
     cellsThatWillSurvive = List.filter willSurvive cells
-  -- cellsThatWillBeBorn: dead + 3 live neighbors
-  -- cells -- = cellsThatWillSurvive ++ cellsThatWillBeBorn
+    cellsThatWillBeBorn = List.filter willBeBorn (neighborhood cells)
   in
-    List.filter willSurvive cells
+    cellsThatWillSurvive ++ cellsThatWillBeBorn
 
 update: Time -> Model -> Model
 update t model =
@@ -76,16 +81,15 @@ cellForm cell =
 
 view: Model -> Element
 view model =
-  collage 800 800
-    ((outlined (solid grey) (rect 800 800)) ::
-    (toForm (show model.generationCount) |> move(-395, 390)) ::
+  collage 200 200
+    ((outlined (solid grey) (rect 200 200)) ::
     (List.map cellForm model.liveCells))
 
 initialModel: Model
 initialModel = init 0 [(0,0), (1,0), (1,2), (3,1), (4,0), (5,0), (6,0)]
 
 gameState =
-  Signal.foldp update initialModel (every second)
+  Signal.foldp update initialModel (fps 35)
 
 main =
   Signal.map view gameState
