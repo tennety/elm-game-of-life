@@ -13,15 +13,18 @@ type alias Cell = (Int, Int)
 type alias Model =
   {
     generationCount: Int
-  , liveCells: List Cell
+  , liveCells: Set.Set Cell
   }
 
-init: Int -> List Cell -> Model
+init: Int -> Set.Set Cell -> Model
 init genCount liveCells =
   {
     generationCount = genCount
   , liveCells = liveCells
   }
+
+rpentomino = Set.fromList [(0,0), (1,0), (1,1), (1,-1), (2,1)]
+acorn = Set.fromList [(0,0), (1,0), (1,2), (3,1), (4,0), (5,0), (6,0)]
 
 -- Update --
 wrap: Int -> Int
@@ -30,9 +33,9 @@ wrap int =
      | int > 100 -> -100
      | otherwise -> int
 
-neighbors: Cell -> List Cell
+neighbors: Cell -> Set.Set Cell
 neighbors cell =
-  [
+  Set.fromList [
     (wrap (fst cell - 1), wrap (snd cell + 1))
   , (fst cell, wrap (snd cell + 1))
   , (wrap (fst cell + 1), wrap (snd cell + 1))
@@ -43,19 +46,19 @@ neighbors cell =
   , (wrap (fst cell + 1), wrap (snd cell - 1))
   ]
 
-neighborhood: List Cell -> List Cell
+neighborhood: Set.Set Cell -> Set.Set Cell
 neighborhood cells =
   let
     emptyHood = Set.fromList []
-    filledHood = List.foldl (Set.union << Set.fromList << neighbors) emptyHood cells
+    filledHood = Set.foldl (Set.union << neighbors) emptyHood cells
   in
-    Set.toList (Set.diff filledHood (Set.fromList cells))
+    Set.diff filledHood cells
 
-procreate: List Cell -> List Cell
+procreate: Set.Set Cell -> Set.Set Cell
 procreate cells =
   let
     family cell =
-      Set.intersect (Set.fromList (neighbors cell)) (Set.fromList cells)
+      Set.intersect (neighbors cell) cells
 
     willSurvive cell =
       List.member (List.length (Set.toList (family cell))) [2,3]
@@ -63,10 +66,10 @@ procreate cells =
     willBeBorn cell =
       3 == List.length (Set.toList (family cell))
 
-    cellsThatWillSurvive = List.filter willSurvive cells
-    cellsThatWillBeBorn = List.filter willBeBorn (neighborhood cells)
+    cellsThatWillSurvive = Set.filter willSurvive cells
+    cellsThatWillBeBorn = Set.filter willBeBorn (neighborhood cells)
   in
-    cellsThatWillSurvive ++ cellsThatWillBeBorn
+    Set.union cellsThatWillSurvive cellsThatWillBeBorn
 
 update: Time -> Model -> Model
 update t model =
@@ -83,13 +86,13 @@ view: Model -> Element
 view model =
   collage 200 200
     ((outlined (solid grey) (rect 200 200)) ::
-    (List.map cellForm model.liveCells))
+    (List.map cellForm (Set.toList model.liveCells)))
 
 initialModel: Model
-initialModel = init 0 [(0,0), (1,0), (1,2), (3,1), (4,0), (5,0), (6,0)]
+initialModel = init 0 rpentomino
 
 gameState =
-  Signal.foldp update initialModel (fps 35)
+  Signal.foldp update initialModel (fps 15)
 
 main =
   Signal.map view gameState
