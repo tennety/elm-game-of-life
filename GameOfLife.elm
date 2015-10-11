@@ -44,14 +44,19 @@ neighbors cell =
   ]
 
 
+
 procreate: List Cell -> List Cell
 procreate cells =
   let
+    family cell =
+      Set.intersect (Set.fromList (neighbors cell)) (Set.fromList cells)
+
     willSurvive cell =
-      let
-          family = Set.intersect (Set.fromList (neighbors cell)) (Set.fromList cells)
-      in
-         List.member (List.length (Set.toList family)) [2,3]
+      List.member (List.length (Set.toList (family cell))) [2,3]
+
+    willBeBorn cell =
+      3 == List.length (Set.toList (family cell))
+
     cellsThatWillSurvive = List.filter willSurvive cells
   -- cellsThatWillBeBorn: dead + 3 live neighbors
   -- cells -- = cellsThatWillSurvive ++ cellsThatWillBeBorn
