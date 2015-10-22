@@ -79,13 +79,13 @@ update t model =
 -- View --
 cellForm: Cell -> Form
 cellForm cell =
-  filled charcoal (circle 0.5)
-  |> move (toFloat (fst cell), toFloat (snd cell))
+  filled charcoal (square 4)
+  |> move (4 * toFloat (fst cell), 4 * toFloat (snd cell))
 
 view: Model -> Element
 view model =
-  collage 200 200
-    ((outlined (solid grey) (rect 200 200)) ::
+  collage 800 800
+    ((outlined (solid grey) (rect 800 800)) ::
     (List.map cellForm (Set.toList model.liveCells)))
 
 initialModel: Model
