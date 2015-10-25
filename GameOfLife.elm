@@ -3,6 +3,7 @@ module GameOfLife where
 import Color exposing (..)
 import Graphics.Collage exposing (..)
 import Graphics.Element exposing (..)
+import Graphics.Input exposing (..)
 import Time exposing (..)
 import Window
 import Set exposing (..)
@@ -26,7 +27,15 @@ init genCount liveCells =
 rpentomino = Set.fromList [(0,0), (1,0), (1,1), (1,-1), (2,1)]
 acorn = Set.fromList [(0,0), (1,0), (1,2), (3,1), (4,0), (5,0), (6,0)]
 
+initialModel: Model
+initialModel = init 0 rpentomino
+
 -- Update --
+type Action = Start | Pause | Reset
+
+command : Signal.Mailbox Action
+command = Signal.mailbox Reset
+
 wrap: Int -> Int
 wrap int =
   if | int < -100 -> 100
@@ -71,28 +80,47 @@ procreate cells =
   in
     Set.union cellsThatWillSurvive cellsThatWillBeBorn
 
-update: Time -> Model -> Model
-update t model =
-  { model | generationCount <- model.generationCount + 1
-          , liveCells <- procreate model.liveCells }
+update: (Time, Action) -> Model -> Model
+update (t, action) model =
+  case action of
+    Start ->
+      { model | generationCount <- model.generationCount + 1
+              , liveCells <- procreate model.liveCells }
+    Pause -> model
+    Reset -> initialModel
 
 -- View --
 cellForm: Cell -> Form
 cellForm cell =
-  filled charcoal (square 4)
+  filled charcoal (circle 2)
   |> move (4 * toFloat (fst cell), 4 * toFloat (snd cell))
+
+toolbar: Element
+toolbar =
+  flow right
+    [ button (Signal.message command.address Start) "Start"
+    , button (Signal.message command.address Pause) "Pause"
+    , button (Signal.message command.address Reset) "Reset"
+    ]
 
 view: Model -> Element
 view model =
-  collage 800 800
-    ((outlined (solid grey) (rect 800 800)) ::
-    (List.map cellForm (Set.toList model.liveCells)))
+  flow down
+  [ toolbar
+  , collage 800 800
+      ((outlined (solid grey) (rect 800 800)) ::
+      (List.map cellForm (Set.toList model.liveCells)))
+  ]
 
-initialModel: Model
-initialModel = init 0 rpentomino
+input: Signal (Time, Action)
+input =
+  let
+    delta = (fps 15)
+  in
+    Signal.sampleOn delta (Signal.map2 (,) delta command.signal)
 
 gameState =
-  Signal.foldp update initialModel (fps 15)
+  Signal.foldp update initialModel input
 
 main =
   Signal.map view gameState
