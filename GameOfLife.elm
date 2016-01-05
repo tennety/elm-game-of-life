@@ -17,18 +17,12 @@ type alias Model =
   , liveCells: Set.Set Cell
   }
 
-init: Int -> Set.Set Cell -> Model
-init genCount liveCells =
-  {
-    generationCount = genCount
-  , liveCells = liveCells
-  }
-
 rpentomino = Set.fromList [(0,0), (1,0), (1,1), (1,-1), (2,1)]
 acorn = Set.fromList [(0,0), (1,0), (1,2), (3,1), (4,0), (5,0), (6,0)]
 
 initialModel: Model
-initialModel = init 0 rpentomino
+initialModel =
+  Model 0 rpentomino
 
 -- Update --
 type Action = Start | Pause | Reset
@@ -38,9 +32,12 @@ command = Signal.mailbox Reset
 
 wrap: Int -> Int
 wrap int =
-  if | int < -100 -> 100
-     | int > 100 -> -100
-     | otherwise -> int
+  if int < -100 then
+    100
+  else if int > 100 then
+    100
+  else
+    int
 
 neighbors: Cell -> Set.Set Cell
 neighbors cell =
@@ -84,8 +81,8 @@ update: (Time, Action) -> Model -> Model
 update (t, action) model =
   case action of
     Start ->
-      { model | generationCount <- model.generationCount + 1
-              , liveCells <- procreate model.liveCells }
+      { model | generationCount = model.generationCount + 1
+              , liveCells = procreate model.liveCells }
     Pause -> model
     Reset -> initialModel
 
@@ -111,6 +108,8 @@ view model =
       ((outlined (solid grey) (rect 800 800)) ::
       (List.map cellForm (Set.toList model.liveCells)))
   ]
+
+-- Main --
 
 input: Signal (Time, Action)
 input =
