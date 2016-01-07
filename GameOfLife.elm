@@ -26,9 +26,13 @@ initialModel =
 
 -- Update --
 type Action = Start | Pause | Reset
+type Mode   = Step  | Continuous
 
-command : Signal.Mailbox Action
+command: Signal.Mailbox Action
 command = Signal.mailbox Reset
+
+mode: Signal.Mailbox Mode
+mode = Signal.mailbox Continuous
 
 wrap: Int -> Int
 wrap int =
@@ -98,6 +102,10 @@ toolbar =
     [ button (Signal.message command.address Start) "Start"
     , button (Signal.message command.address Pause) "Pause"
     , button (Signal.message command.address Reset) "Reset"
+    , dropDown (Signal.message mode.address) [
+        ("Step", Step)
+      , ("Continuous", Continuous)
+      ]
     ]
 
 view: Model -> Element
