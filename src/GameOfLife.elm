@@ -183,7 +183,12 @@ view model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Time.every (Time.second / 10) Tick
+    case model.state of
+        Paused ->
+            Sub.none
+
+        Running ->
+            Time.every (Time.second / 10) Tick
 
 
 
