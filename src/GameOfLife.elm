@@ -1,20 +1,16 @@
 module GameOfLife exposing (..)
 
-import Color exposing (..)
+import Cell exposing (Cell, map, procreate, rpentomino, x, y)
 import Html exposing (Html, button, div, program, text)
 import Html.Events exposing (onClick)
 import Set exposing (..)
 import Svg exposing (..)
-import Svg.Attributes exposing (..)
+import Svg.Attributes as SvgAttrs exposing (..)
 import Time
 import Tuple exposing (..)
 
 
 -- Model --
-
-
-type alias Cell =
-    ( Int, Int )
 
 
 type State
@@ -23,22 +19,14 @@ type State
 
 
 type alias Model =
-    { liveCells : Set.Set Cell
+    { liveCells : Set Cell
     , state : State
     }
 
 
-rpentomino =
-    Set.fromList [ ( 0, 0 ), ( 1, 0 ), ( 1, 1 ), ( 1, -1 ), ( 2, 1 ) ]
-
-
-acorn =
-    Set.fromList [ ( 0, 0 ), ( 1, 0 ), ( 1, 2 ), ( 3, 1 ), ( 4, 0 ), ( 5, 0 ), ( 6, 0 ) ]
-
-
 initialModel : ( Model, Cmd Msg )
 initialModel =
-    ( Model rpentomino Paused, Cmd.none )
+    ( Model Cell.rpentomino Paused, Cmd.none )
 
 
 
@@ -52,70 +40,13 @@ type Msg
     | Tick Time.Time
 
 
-wrap : Int -> Int
-wrap int =
-    if int < -100 then
-        100
-    else if int > 100 then
-        -100
-    else
-        int
-
-
-neighbors : Cell -> Set.Set Cell
-neighbors cell =
-    Set.fromList
-        [ ( wrap (first cell - 1), wrap (second cell + 1) )
-        , ( first cell, wrap (second cell + 1) )
-        , ( wrap (first cell + 1), wrap (second cell + 1) )
-        , ( wrap (first cell - 1), second cell )
-        , ( wrap (first cell + 1), second cell )
-        , ( wrap (first cell - 1), wrap (second cell - 1) )
-        , ( first cell, wrap (second cell - 1) )
-        , ( wrap (first cell + 1), wrap (second cell - 1) )
-        ]
-
-
-neighborhood : Set.Set Cell -> Set.Set Cell
-neighborhood cells =
-    let
-        emptyHood =
-            Set.fromList []
-
-        filledHood =
-            Set.foldl (Set.union << neighbors) emptyHood cells
-    in
-    Set.diff filledHood cells
-
-
-procreate : Set.Set Cell -> Set.Set Cell
-procreate cells =
-    let
-        family cell =
-            Set.intersect (neighbors cell) cells
-
-        willSurvive cell =
-            List.member (List.length (Set.toList (family cell))) [ 2, 3 ]
-
-        willBeBorn cell =
-            3 == List.length (Set.toList (family cell))
-
-        cellsThatWillSurvive =
-            Set.filter willSurvive cells
-
-        cellsThatWillBeBorn =
-            Set.filter willBeBorn (neighborhood cells)
-    in
-    Set.union cellsThatWillSurvive cellsThatWillBeBorn
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Start ->
             ( { model | state = Running }, Cmd.none )
 
-        Tick time ->
+        Tick _ ->
             case model.state of
                 Running ->
                     ( { model | liveCells = procreate model.liveCells }, Cmd.none )
@@ -136,9 +67,13 @@ update msg model =
 
 cellForm : Cell -> Svg Msg
 cellForm cell =
+    let
+        scaled =
+            Cell.map (\coord -> coord * 3 + 300)
+    in
     circle
-        [ cx (cell |> first |> toFloat |> (\a -> a * 3 + 300) |> toString)
-        , cy (cell |> second |> toFloat |> (\a -> a * 3 + 300) |> toString)
+        [ cx (cell |> scaled |> Cell.x |> toString)
+        , cy (cell |> scaled |> Cell.y |> toString)
         , r "1.5"
         , fill "#333"
         ]
@@ -161,8 +96,8 @@ view model =
         , svg [ viewBox "0 0 600 600", width "600px" ]
             (List.append
                 [ rect
-                    [ x "0"
-                    , y "0"
+                    [ SvgAttrs.x "0"
+                    , SvgAttrs.y "0"
                     , width "600"
                     , height "600"
                     , fill "none"
