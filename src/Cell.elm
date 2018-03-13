@@ -1,16 +1,7 @@
-module Cell
-    exposing
-        ( Cell
-        , acorn
-        , map
-        , procreate
-        , rpentomino
-        , x
-        , y
-        )
+module Cell exposing (Cell, acorn, map, procreate, rpentomino, signal, x, y)
 
-import Set exposing (..)
-import Tuple exposing (..)
+import Set exposing (Set)
+import Tuple
 
 
 type alias Cell =
@@ -18,19 +9,19 @@ type alias Cell =
 
 
 x : Cell -> Int
-x cell =
-    first cell
+x =
+    Tuple.first
 
 
 y : Cell -> Int
-y cell =
-    second cell
+y =
+    Tuple.second
 
 
 map : (Int -> Int) -> Cell -> Cell
 map f cell =
-    ( cell |> mapFirst f |> x
-    , cell |> mapSecond f |> y
+    ( cell |> Tuple.mapFirst f |> x
+    , cell |> Tuple.mapSecond f |> y
     )
 
 
@@ -61,11 +52,8 @@ neighbors cell =
 neighborhood : Set Cell -> Set Cell
 neighborhood cells =
     let
-        emptyHood =
-            Set.empty
-
         filledHood =
-            Set.foldl (Set.union << neighbors) emptyHood cells
+            Set.foldl (Set.union << neighbors) Set.empty cells
     in
     Set.diff filledHood cells
 
@@ -73,22 +61,22 @@ neighborhood cells =
 procreate : Set Cell -> Set Cell
 procreate cells =
     let
-        family cell =
-            Set.intersect (neighbors cell) cells
+        familySize cell =
+            Set.size <| Set.intersect (neighbors cell) cells
 
-        willSurvive cell =
-            List.member (Set.size (family cell)) [ 2, 3 ]
+        survivalRule cell =
+            List.member (familySize cell) [ 2, 3 ]
 
-        willBeBorn cell =
-            3 == Set.size (family cell)
+        birthRule cell =
+            3 == familySize cell
 
-        cellsThatWillSurvive =
-            Set.filter willSurvive cells
+        willSurvive =
+            Set.filter survivalRule cells
 
-        cellsThatWillBeBorn =
-            Set.filter willBeBorn (neighborhood cells)
+        willBeBorn =
+            Set.filter birthRule (neighborhood cells)
     in
-    Set.union cellsThatWillSurvive cellsThatWillBeBorn
+    Set.union willSurvive willBeBorn
 
 
 rpentomino =
@@ -97,3 +85,7 @@ rpentomino =
 
 acorn =
     Set.fromList [ ( 0, 0 ), ( 1, 0 ), ( 1, 2 ), ( 3, 1 ), ( 4, 0 ), ( 5, 0 ), ( 6, 0 ) ]
+
+
+signal =
+    Set.fromList [ ( 0, 0 ), ( 1, 0 ), ( -1, 0 ) ]

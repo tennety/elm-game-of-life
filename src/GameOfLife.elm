@@ -1,13 +1,15 @@
 module GameOfLife exposing (..)
 
 import Cell exposing (Cell, map, procreate, rpentomino, x, y)
-import Html exposing (Html, button, div, program, text)
-import Html.Events exposing (onClick)
-import Set exposing (..)
+import Element exposing (button, column, el, empty, html, layout, link, row, text, viewport)
+import Element.Attributes as ElAttrs exposing (center, fill, height, padding, px, spacing, width)
+import Element.Events exposing (onClick)
+import Html exposing (Html, program)
+import Set exposing (Set)
+import Styles exposing (GolStyles(..), stylesheet)
 import Svg exposing (..)
 import Svg.Attributes as SvgAttrs exposing (..)
 import Time
-import Tuple exposing (..)
 
 
 -- Model --
@@ -34,7 +36,7 @@ initialModel =
 
 
 type Msg
-    = Start
+    = Play
     | Pause
     | Reset
     | Tick Time.Time
@@ -43,8 +45,14 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Start ->
+        Reset ->
+            initialModel
+
+        Play ->
             ( { model | state = Running }, Cmd.none )
+
+        Pause ->
+            ( { model | state = Paused }, Cmd.none )
 
         Tick _ ->
             case model.state of
@@ -54,62 +62,71 @@ update msg model =
                 Paused ->
                     ( model, Cmd.none )
 
-        Pause ->
-            ( { model | state = Paused }, Cmd.none )
-
-        Reset ->
-            initialModel
-
 
 
 -- View --
 
 
-cellForm : Cell -> Svg Msg
-cellForm cell =
-    let
-        scaled =
-            Cell.map (\coord -> coord * 3 + 300)
-    in
-    circle
-        [ cx (cell |> scaled |> Cell.x |> toString)
-        , cy (cell |> scaled |> Cell.y |> toString)
-        , r "1.5"
-        , fill "#333"
-        ]
-        []
-
-
-cells : Model -> List (Svg Msg)
-cells model =
-    List.map cellForm (Set.toList model.liveCells)
-
-
 view : Model -> Html Msg
 view model =
-    div []
-        [ div []
-            [ button [ onClick Start ] [ Html.text "Start" ]
-            , button [ onClick Pause ] [ Html.text "Pause" ]
-            , button [ onClick Reset ] [ Html.text "Reset" ]
-            ]
-        , svg [ viewBox "0 0 600 600", width "600px" ]
-            (List.append
-                [ rect
-                    [ SvgAttrs.x "0"
-                    , SvgAttrs.y "0"
-                    , width "600"
-                    , height "600"
-                    , fill "none"
-                    , stroke "#ccc"
-                    , rx "5"
-                    , ry "5"
-                    ]
-                    []
+    let
+        cellForm : Cell -> Svg Msg
+        cellForm cell =
+            let
+                scaled =
+                    Cell.map (\coord -> coord * 3 + 300)
+            in
+            circle
+                [ cx (cell |> scaled |> Cell.x |> toString)
+                , cy (cell |> scaled |> Cell.y |> toString)
+                , r "1.5"
+                , SvgAttrs.fill "#333"
                 ]
-                (cells model)
-            )
-        ]
+                []
+
+        cells : Model -> List (Svg Msg)
+        cells model =
+            List.map cellForm (Set.toList model.liveCells)
+
+        playButton : Model -> Element.Element GolStyles variation Msg
+        playButton model =
+            case model.state of
+                Running ->
+                    button Button [ onClick Pause, padding 10 ] (Element.text "Pause")
+
+                Paused ->
+                    button Button [ onClick Play, padding 10 ] (Element.text "Play")
+    in
+    viewport stylesheet <|
+        column Body
+            []
+            [ el Title [ center ] (Element.text "Game of Life")
+            , row Toolbar
+                [ center, padding 5, ElAttrs.spacing 5 ]
+                [ playButton model
+                , button Button [ onClick Reset, padding 10 ] (Element.text "Reset")
+                ]
+            , row Map
+                [ center, ElAttrs.height (px 600) ]
+                [ html <|
+                    svg [ viewBox "0 0 600 600", SvgAttrs.width "600px" ]
+                        (List.append
+                            [ rect
+                                [ SvgAttrs.x "0"
+                                , SvgAttrs.y "0"
+                                , SvgAttrs.width "600"
+                                , SvgAttrs.height "600"
+                                , SvgAttrs.fill "none"
+                                , stroke "#ccc"
+                                , rx "5"
+                                , ry "5"
+                                ]
+                                []
+                            ]
+                            (cells model)
+                        )
+                ]
+            ]
 
 
 
