@@ -1,14 +1,17 @@
 module GameOfLife exposing (..)
 
+import AppStyles exposing (AppStyles(..), stylesheet)
 import Cell exposing (Cell, map, procreate, rpentomino, x, y)
+import Color exposing (..)
+import Color.Convert exposing (..)
 import Element exposing (button, column, el, empty, html, layout, link, row, text, viewport)
-import Element.Attributes as ElAttrs exposing (center, fill, height, padding, px, spacing, width)
+import Element.Attributes as EA exposing (center, fill, height, padding, paddingXY, percent, px, spacing, verticalCenter, width)
 import Element.Events exposing (onClick)
 import Html exposing (Html, program)
+import Icons exposing (pause, play, skipBack)
 import Set exposing (Set)
-import Styles exposing (GolStyles(..), stylesheet)
 import Svg exposing (..)
-import Svg.Attributes as SvgAttrs exposing (..)
+import Svg.Attributes as SA exposing (..)
 import Time
 
 
@@ -64,67 +67,89 @@ update msg model =
 
 
 
+-- View Helpers --
+
+
+cellForm : Float -> Int -> Int -> Cell -> Svg Msg
+cellForm radius scale translate cell =
+    let
+        scaled =
+            Cell.map (\coord -> coord * scale + translate)
+    in
+    circle
+        [ cx (cell |> scaled |> Cell.x |> toString)
+        , cy (cell |> scaled |> Cell.y |> toString)
+        , r (toString radius)
+        , SA.fill (colorToHex charcoal)
+        ]
+        []
+
+
+cellForms : Set Cell -> List (Svg Msg)
+cellForms liveCells =
+    List.map (cellForm 1.5 3 300) (Set.toList liveCells)
+
+
+withBackground : Int -> Int -> List (Svg Msg) -> List (Svg Msg)
+withBackground width height cells =
+    List.append
+        [ rect
+            [ SA.x "0"
+            , SA.y "0"
+            , SA.width <| toString width
+            , SA.height <| toString height
+            , SA.fill <| colorToHex white
+            , rx "5"
+            , ry "5"
+            ]
+            []
+        ]
+        cells
+
+
+appButton : Msg -> Svg Msg -> Element.Element AppStyles variation Msg
+appButton msg icon =
+    button Button [ onClick msg, paddingXY 10 5, EA.width (EA.percent 50), EA.height (px 38) ] (html icon)
+
+
+playButton : State -> Element.Element AppStyles variation Msg
+playButton state =
+    case state of
+        Running ->
+            appButton Pause Icons.pause
+
+        Paused ->
+            appButton Play Icons.play
+
+
+
 -- View --
 
 
 view : Model -> Html Msg
 view model =
-    let
-        cellForm : Cell -> Svg Msg
-        cellForm cell =
-            let
-                scaled =
-                    Cell.map (\coord -> coord * 3 + 300)
-            in
-            circle
-                [ cx (cell |> scaled |> Cell.x |> toString)
-                , cy (cell |> scaled |> Cell.y |> toString)
-                , r "1.5"
-                , SvgAttrs.fill "#333"
-                ]
-                []
-
-        cells : Model -> List (Svg Msg)
-        cells model =
-            List.map cellForm (Set.toList model.liveCells)
-
-        playButton : Model -> Element.Element GolStyles variation Msg
-        playButton model =
-            case model.state of
-                Running ->
-                    button Button [ onClick Pause, padding 10 ] (Element.text "Pause")
-
-                Paused ->
-                    button Button [ onClick Play, padding 10 ] (Element.text "Play")
-    in
     viewport stylesheet <|
         column Body
-            []
-            [ el Title [ center ] (Element.text "Game of Life")
-            , row Toolbar
-                [ center, padding 5, ElAttrs.spacing 5 ]
-                [ playButton model
-                , button Button [ onClick Reset, padding 10 ] (Element.text "Reset")
+            [ EA.height <| EA.percent 100 ]
+            [ row Header
+                [ center, padding 10, EA.width (EA.percent 100) ]
+                [ el Title [] (Element.text "Conway's Game of Life")
                 ]
-            , row Map
-                [ center, ElAttrs.height (px 600) ]
-                [ html <|
-                    svg [ viewBox "0 0 600 600", SvgAttrs.width "600px" ]
-                        (List.append
-                            [ rect
-                                [ SvgAttrs.x "0"
-                                , SvgAttrs.y "0"
-                                , SvgAttrs.width "600"
-                                , SvgAttrs.height "600"
-                                , SvgAttrs.fill "none"
-                                , stroke "#ccc"
-                                , rx "5"
-                                , ry "5"
-                                ]
-                                []
-                            ]
-                            (cells model)
-                        )
+            , column Section
+                [ center ]
+                [ row Toolbar
+                    [ padding 5, EA.spacing 5 ]
+                    [ playButton model.state
+                    , appButton Reset Icons.skipBack
+                    ]
+                , row Map
+                    [ center, EA.height (px 600) ]
+                    [ model.liveCells
+                        |> cellForms
+                        |> withBackground 600 600
+                        |> svg [ viewBox "0 0 600 600", SA.width "600px" ]
+                        |> html
+                    ]
                 ]
             ]
 
