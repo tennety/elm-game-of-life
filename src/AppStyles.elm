@@ -19,10 +19,10 @@ type AppStyles
     | Map
 
 
-stylesheet =
+stylesheet assetRoot =
     Style.styleSheet
         [ style Body
-            [ Background.coverImage "/images/retro-bg.jpg"
+            [ Background.coverImage (assetRoot ++ "images/retro-bg.jpg")
             , Font.typeface
                 [ Font.font "Courier New"
                 , Font.font "monospace"

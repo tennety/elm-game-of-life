@@ -7,7 +7,7 @@ import Color.Convert exposing (..)
 import Element exposing (button, column, el, empty, html, layout, link, row, text, viewport)
 import Element.Attributes as EA exposing (center, fill, height, padding, paddingXY, percent, px, spacing, verticalCenter, width)
 import Element.Events exposing (onClick)
-import Html exposing (Html, program)
+import Html exposing (Html, program, programWithFlags)
 import Icons exposing (pause, play, skipBack)
 import Set exposing (Set)
 import Svg exposing (..)
@@ -23,15 +23,30 @@ type State
     | Paused
 
 
+type alias RootUrl =
+    String
+
+
 type alias Model =
-    { liveCells : Set Cell
+    { assetRoot : RootUrl
+    , liveCells : Set Cell
     , state : State
     }
 
 
-initialModel : ( Model, Cmd Msg )
+type alias Flags =
+    { assetRoot : String
+    }
+
+
+initialModel : Model
 initialModel =
-    ( Model Cell.rpentomino Paused, Cmd.none )
+    Model "/" Cell.rpentomino Paused
+
+
+init : Flags -> ( Model, Cmd Msg )
+init flags =
+    ( { initialModel | assetRoot = flags.assetRoot }, Cmd.none )
 
 
 
@@ -49,7 +64,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Reset ->
-            initialModel
+            ( Model model.assetRoot Cell.rpentomino Paused, Cmd.none )
 
         Play ->
             ( { model | state = Running }, Cmd.none )
@@ -128,7 +143,7 @@ playButton state =
 
 view : Model -> Html Msg
 view model =
-    viewport stylesheet <|
+    viewport (stylesheet model.assetRoot) <|
         column Body
             [ EA.height <| EA.percent 100 ]
             [ row Header
@@ -174,8 +189,18 @@ subscriptions model =
 
 main =
     Html.program
-        { init = initialModel
+        { init = ( initialModel, Cmd.none )
         , view = view
         , update = update
         , subscriptions = subscriptions
         }
+
+
+
+-- main =
+--     Html.programWithFlags
+--         { init = init
+--         , view = view
+--         , update = update
+--         , subscriptions = subscriptions
+--         }
