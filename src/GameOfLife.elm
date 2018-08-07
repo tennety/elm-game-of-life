@@ -73,12 +73,7 @@ update msg model =
             ( { model | state = Paused }, Cmd.none )
 
         Tick _ ->
-            case model.state of
-                Running ->
-                    ( { model | liveCells = procreate model.liveCells }, Cmd.none )
-
-                Paused ->
-                    ( model, Cmd.none )
+            ( { model | liveCells = procreate model.liveCells }, Cmd.none )
 
 
 
