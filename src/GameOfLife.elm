@@ -1,18 +1,21 @@
-module GameOfLife exposing (..)
+module GameOfLife exposing (Flags, Model, Msg(..), RootUrl, State(..), appButton, cellForm, cellForms, init, initialModel, main, playButton, subscriptions, update, view, withBackground)
 
-import AppStyles exposing (AppStyles(..), stylesheet)
+import Browser exposing (application, sandbox)
 import Cell exposing (Cell, map, procreate, rpentomino, x, y)
-import Color exposing (..)
-import Color.Convert exposing (..)
-import Element exposing (button, column, el, empty, html, layout, link, row, text, viewport)
-import Element.Attributes as EA exposing (center, fill, height, padding, paddingXY, percent, px, spacing, verticalCenter, width)
+import Element as El exposing (centerX, centerY, column, el, fill, height, html, layout, link, padding, paddingXY, px, rgba255, row, spacing, text, width)
+import Element.Background as Bg exposing (image)
+import Element.Border as Border
 import Element.Events exposing (onClick)
-import Html exposing (Html, program, programWithFlags)
+import Element.Font as Font
+import Element.Input exposing (button)
+import Element.Region exposing (heading)
+import Html exposing (Html)
 import Icons exposing (pause, play, skipBack)
 import Set exposing (Set)
 import Svg exposing (..)
 import Svg.Attributes as SA exposing (..)
 import Time
+
 
 
 -- Model --
@@ -57,7 +60,7 @@ type Msg
     = Play
     | Pause
     | Reset
-    | Tick Time.Time
+    | Tick
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -72,7 +75,7 @@ update msg model =
         Pause ->
             ( { model | state = Paused }, Cmd.none )
 
-        Tick _ ->
+        Tick ->
             ( { model | liveCells = procreate model.liveCells }, Cmd.none )
 
 
@@ -87,10 +90,10 @@ cellForm radius scale translate cell =
             Cell.map (\coord -> coord * scale + translate)
     in
     circle
-        [ cx (cell |> scaled |> Cell.x |> toString)
-        , cy (cell |> scaled |> Cell.y |> toString)
-        , r (toString radius)
-        , SA.fill (colorToHex charcoal)
+        [ cx (cell |> scaled |> Cell.x |> String.fromInt)
+        , cy (cell |> scaled |> Cell.y |> String.fromInt)
+        , r (String.fromFloat radius)
+        , SA.fill "#333333"
         ]
         []
 
@@ -106,9 +109,9 @@ withBackground width height cells =
         [ rect
             [ SA.x "0"
             , SA.y "0"
-            , SA.width <| toString width
-            , SA.height <| toString height
-            , SA.fill <| colorToHex white
+            , SA.width <| String.fromInt width
+            , SA.height <| String.fromInt height
+            , SA.fill "#ffffff"
             , rx "5"
             , ry "5"
             ]
@@ -117,12 +120,12 @@ withBackground width height cells =
         cells
 
 
-appButton : Msg -> Svg Msg -> Element.Element AppStyles variation Msg
+appButton : Msg -> Svg Msg -> El.Element Msg
 appButton msg icon =
-    button Button [ onClick msg, paddingXY 10 5, EA.width (EA.percent 50), EA.height (px 38) ] (html icon)
+    button [ paddingXY 10 5, El.width El.fill, El.height (px 34), Border.rounded 4, Border.width 1, Border.color (rgba255 20 20 20 1), Bg.color (rgba255 220 255 255 0.7) ] { label = html icon, onPress = Just msg }
 
 
-playButton : State -> Element.Element AppStyles variation Msg
+playButton : State -> El.Element Msg
 playButton state =
     case state of
         Running ->
@@ -138,22 +141,22 @@ playButton state =
 
 view : Model -> Html Msg
 view model =
-    viewport (stylesheet model.assetRoot) <|
-        column Body
-            [ EA.height <| EA.percent 100 ]
-            [ row Header
-                [ center, padding 10, EA.width (EA.percent 100) ]
-                [ el Title [] (Element.text "Conway's Game of Life")
+    layout [ Bg.image <| model.assetRoot ++ "images/retro-bg.jpg" ] <|
+        column
+            [ El.height El.fill, El.width El.fill ]
+            [ row
+                [ padding 10, El.width El.fill, Bg.color (rgba255 20 20 20 0.7), Font.family [ Font.typeface "Courier", Font.monospace ], Font.color (rgba255 200 200 200 1) ]
+                [ el [ centerX, heading 1 ] (El.text "Conway's Game of Life")
                 ]
-            , column Section
-                [ center ]
-                [ row Toolbar
-                    [ padding 5, EA.spacing 5 ]
+            , column
+                [ centerX ]
+                [ row
+                    [ centerX, padding 5, El.spacing 5 ]
                     [ playButton model.state
                     , appButton Reset Icons.skipBack
                     ]
-                , row Map
-                    [ center, EA.height (px 600) ]
+                , row
+                    [ centerX, El.height (px 600) ]
                     [ model.liveCells
                         |> cellForms
                         |> withBackground 600 600
@@ -175,7 +178,7 @@ subscriptions model =
             Sub.none
 
         Running ->
-            Time.every (Time.second / 10) Tick
+            Time.every (1000 / 15) (\_ -> Tick)
 
 
 
@@ -183,19 +186,9 @@ subscriptions model =
 
 
 main =
-    Html.program
-        { init = ( initialModel, Cmd.none )
+    Browser.element
+        { init = init
         , view = view
         , update = update
         , subscriptions = subscriptions
         }
-
-
-
--- main =
---     Html.programWithFlags
---         { init = init
---         , view = view
---         , update = update
---         , subscriptions = subscriptions
---         }

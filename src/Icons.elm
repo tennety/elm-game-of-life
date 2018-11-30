@@ -1,12 +1,11 @@
 {- Icon code generated at https://1602.github.io/elm-feather-icons/ -}
 
 
-module Icons
-    exposing
-        ( pause
-        , play
-        , skipBack
-        )
+module Icons exposing
+    ( pause
+    , play
+    , skipBack
+    )
 
 import Html exposing (Html)
 import Svg exposing (Svg, svg)

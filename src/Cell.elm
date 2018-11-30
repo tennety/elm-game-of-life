@@ -29,8 +29,10 @@ wrap : Int -> Int
 wrap int =
     if int < -100 then
         100
+
     else if int > 100 then
         -100
+
     else
         int
 
