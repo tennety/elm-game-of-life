@@ -1,6 +1,7 @@
 module GameOfLife exposing (Flags, Model, Msg(..), RootUrl, State(..), appButton, cellForm, cellForms, init, initialModel, main, playButton, subscriptions, update, view, withBackground)
 
 import Browser exposing (application, sandbox)
+import Browser.Events exposing (onAnimationFrame, onAnimationFrameDelta)
 import Cell exposing (Cell, map, procreate, rpentomino, x, y)
 import Element as El exposing (centerX, centerY, column, el, fill, height, html, layout, link, padding, paddingXY, px, rgba255, row, spacing, text, width)
 import Element.Background as Bg exposing (image)
@@ -34,6 +35,7 @@ type alias Model =
     { assetRoot : RootUrl
     , liveCells : Set Cell
     , state : State
+    , fps: Int
     }
 
 
@@ -44,7 +46,7 @@ type alias Flags =
 
 initialModel : Model
 initialModel =
-    Model "/" Cell.rpentomino Paused
+    Model "/" Cell.rpentomino Paused 0
 
 
 init : Flags -> ( Model, Cmd Msg )
@@ -60,14 +62,15 @@ type Msg
     = Play
     | Pause
     | Reset
-    | Tick
+    | Tick Time.Posix
+    | Delta Float
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Reset ->
-            ( Model model.assetRoot Cell.rpentomino Paused, Cmd.none )
+            ( initialModel, Cmd.none )
 
         Play ->
             ( { model | state = Running }, Cmd.none )
@@ -75,8 +78,11 @@ update msg model =
         Pause ->
             ( { model | state = Paused }, Cmd.none )
 
-        Tick ->
+        Tick _ ->
             ( { model | liveCells = procreate model.liveCells }, Cmd.none )
+
+        Delta interval ->
+            ( { model | fps = round(1000 / interval) }, Cmd.none)
 
 
 
@@ -163,6 +169,10 @@ view model =
                         |> svg [ viewBox "0 0 600 600", SA.width "600px" ]
                         |> html
                     ]
+                , row
+                    [ centerX, padding 5, El.spacing 10 ]
+                    [ el [ centerX ] (El.text <| "fps:" ++ (model.fps |> String.fromInt))
+                    ]
                 ]
             ]
 
@@ -178,7 +188,7 @@ subscriptions model =
             Sub.none
 
         Running ->
-            Time.every (1000 / 15) (\_ -> Tick)
+            Sub.batch [onAnimationFrame Tick, onAnimationFrameDelta Delta]
 
 
 
