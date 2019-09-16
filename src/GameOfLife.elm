@@ -70,7 +70,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Reset ->
-            ( initialModel, Cmd.none )
+            ( { initialModel | assetRoot = model.assetRoot }, Cmd.none )
 
         Play ->
             ( { model | state = Running }, Cmd.none )
