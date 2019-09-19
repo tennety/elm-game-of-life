@@ -4976,14 +4976,11 @@ var author$project$GameOfLife$init = function (flags) {
 			{assetRoot: flags.assetRoot}),
 		elm$core$Platform$Cmd$none);
 };
-var author$project$GameOfLife$Delta = function (a) {
-	return {$: 'Delta', a: a};
-};
 var author$project$GameOfLife$Tick = function (a) {
 	return {$: 'Tick', a: a};
 };
-var elm$browser$Browser$AnimationManager$Time = function (a) {
-	return {$: 'Time', a: a};
+var elm$browser$Browser$AnimationManager$Delta = function (a) {
+	return {$: 'Delta', a: a};
 };
 var elm$browser$Browser$AnimationManager$State = F3(
 	function (subs, request, oldTime) {
@@ -5399,8 +5396,8 @@ var elm$browser$Browser$AnimationManager$onSelfMsg = F3(
 					elm$core$Platform$sendToSelf(router),
 					elm$browser$Browser$AnimationManager$rAF)));
 	});
-var elm$browser$Browser$AnimationManager$Delta = function (a) {
-	return {$: 'Delta', a: a};
+var elm$browser$Browser$AnimationManager$Time = function (a) {
+	return {$: 'Time', a: a};
 };
 var elm$core$Basics$composeL = F3(
 	function (g, f, x) {
@@ -5421,11 +5418,6 @@ var elm$browser$Browser$AnimationManager$subMap = F2(
 	});
 _Platform_effectManagers['Browser.AnimationManager'] = _Platform_createManager(elm$browser$Browser$AnimationManager$init, elm$browser$Browser$AnimationManager$onEffects, elm$browser$Browser$AnimationManager$onSelfMsg, 0, elm$browser$Browser$AnimationManager$subMap);
 var elm$browser$Browser$AnimationManager$subscription = _Platform_leaf('Browser.AnimationManager');
-var elm$browser$Browser$AnimationManager$onAnimationFrame = function (tagger) {
-	return elm$browser$Browser$AnimationManager$subscription(
-		elm$browser$Browser$AnimationManager$Time(tagger));
-};
-var elm$browser$Browser$Events$onAnimationFrame = elm$browser$Browser$AnimationManager$onAnimationFrame;
 var elm$browser$Browser$AnimationManager$onAnimationFrameDelta = function (tagger) {
 	return elm$browser$Browser$AnimationManager$subscription(
 		elm$browser$Browser$AnimationManager$Delta(tagger));
@@ -5438,12 +5430,7 @@ var author$project$GameOfLife$subscriptions = function (model) {
 	if (_n0.$ === 'Paused') {
 		return elm$core$Platform$Sub$none;
 	} else {
-		return elm$core$Platform$Sub$batch(
-			_List_fromArray(
-				[
-					elm$browser$Browser$Events$onAnimationFrame(author$project$GameOfLife$Tick),
-					elm$browser$Browser$Events$onAnimationFrameDelta(author$project$GameOfLife$Delta)
-				]));
+		return elm$browser$Browser$Events$onAnimationFrameDelta(author$project$GameOfLife$Tick);
 	}
 };
 var author$project$Cell$wrap = function (_int) {
@@ -6115,21 +6102,14 @@ var author$project$GameOfLife$update = F2(
 						model,
 						{state: author$project$GameOfLife$Paused}),
 					elm$core$Platform$Cmd$none);
-			case 'Tick':
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							liveCells: author$project$Cell$procreate(model.liveCells)
-						}),
-					elm$core$Platform$Cmd$none);
 			default:
 				var interval = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							fps: elm$core$Basics$round(1000 / interval)
+							fps: elm$core$Basics$round(1000 / interval),
+							liveCells: author$project$Cell$procreate(model.liveCells)
 						}),
 					elm$core$Platform$Cmd$none);
 		}
