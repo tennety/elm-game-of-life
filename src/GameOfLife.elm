@@ -62,8 +62,7 @@ type Msg
     = Play
     | Pause
     | Reset
-    | Tick Time.Posix
-    | Delta Float
+    | Tick Float
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -78,11 +77,8 @@ update msg model =
         Pause ->
             ( { model | state = Paused }, Cmd.none )
 
-        Tick _ ->
-            ( { model | liveCells = procreate model.liveCells }, Cmd.none )
-
-        Delta interval ->
-            ( { model | fps = round(1000 / interval) }, Cmd.none)
+        Tick interval ->
+            ( { model | liveCells = procreate model.liveCells, fps = round(1000 / interval) }, Cmd.none )
 
 
 
@@ -188,7 +184,7 @@ subscriptions model =
             Sub.none
 
         Running ->
-            Sub.batch [onAnimationFrame Tick, onAnimationFrameDelta Delta]
+            onAnimationFrameDelta Tick
 
 
 
