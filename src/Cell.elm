@@ -81,6 +81,7 @@ procreate cells =
     Set.union willSurvive willBeBorn
 
 
+rpentomino: Set Cell
 rpentomino =
     Set.fromList [ ( 0, 0 ), ( 1, 0 ), ( 1, 1 ), ( 1, -1 ), ( 2, 1 ) ]
 

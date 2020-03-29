@@ -1,12 +1,11 @@
 module GameOfLife exposing (Flags, Model, Msg(..), RootUrl, State(..), appButton, cellForm, cellForms, init, initialModel, main, playButton, subscriptions, update, view, withBackground)
 
-import Browser exposing (application, sandbox)
-import Browser.Events exposing (onAnimationFrame, onAnimationFrameDelta)
-import Cell exposing (Cell, map, procreate, rpentomino, x, y)
-import Element as El exposing (centerX, centerY, column, el, fill, height, html, layout, link, padding, paddingXY, px, rgba255, row, spacing, text, width)
+import Browser
+import Browser.Events exposing (onAnimationFrameDelta)
+import Cell exposing (Cell, acorn, map, procreate, rpentomino, x, y)
+import Element as El exposing (centerX, column, el, fill, height, html, layout, padding, paddingXY, px, rgba255, row, spacing, text, width)
 import Element.Background as Bg exposing (image)
 import Element.Border as Border
-import Element.Events exposing (onClick)
 import Element.Font as Font
 import Element.Input exposing (button)
 import Element.Region exposing (heading)
@@ -15,7 +14,6 @@ import Icons exposing (pause, play, skipBack)
 import Set exposing (Set)
 import Svg exposing (..)
 import Svg.Attributes as SA exposing (..)
-import Time
 
 
 
@@ -35,7 +33,7 @@ type alias Model =
     { assetRoot : RootUrl
     , liveCells : Set Cell
     , state : State
-    , fps: Int
+    , fps : Int
     }
 
 
@@ -46,7 +44,7 @@ type alias Flags =
 
 initialModel : Model
 initialModel =
-    Model "/" Cell.rpentomino Paused 0
+    Model "/" Cell.acorn Paused 0
 
 
 init : Flags -> ( Model, Cmd Msg )
@@ -78,7 +76,7 @@ update msg model =
             ( { model | state = Paused }, Cmd.none )
 
         Tick interval ->
-            ( { model | liveCells = procreate model.liveCells, fps = round(1000 / interval) }, Cmd.none )
+            ( { model | liveCells = procreate model.liveCells, fps = round (1000 / interval) }, Cmd.none )
 
 
 
@@ -124,7 +122,16 @@ withBackground width height cells =
 
 appButton : Msg -> Svg Msg -> El.Element Msg
 appButton msg icon =
-    button [ paddingXY 10 5, El.width El.fill, El.height (px 34), Border.rounded 4, Border.width 1, Border.color (rgba255 20 20 20 1), Bg.color (rgba255 220 255 255 0.7) ] { label = html icon, onPress = Just msg }
+    button
+        [ paddingXY 10 5
+        , El.width El.fill
+        , El.height (px 34)
+        , Border.rounded 4
+        , Border.width 1
+        , Border.color (rgba255 20 20 20 1)
+        , Bg.color (rgba255 220 255 255 0.7)
+        ]
+        { label = html icon, onPress = Just msg }
 
 
 playButton : State -> El.Element Msg
