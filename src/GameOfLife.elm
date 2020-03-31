@@ -2,7 +2,7 @@ module GameOfLife exposing (Flags, Model, Msg(..), RootUrl, State(..), appButton
 
 import Browser
 import Browser.Events exposing (onAnimationFrameDelta)
-import Cell exposing (Cell, acorn, map, procreate, rpentomino, x, y)
+import Cell exposing (Cell, acorn, frothingPuffer, gosperGliderGun, map, procreate, rpentomino, x, y)
 import Element as El exposing (centerX, column, el, fill, height, html, layout, padding, paddingXY, px, rgba255, row, spacing, text, width)
 import Element.Background as Bg exposing (image)
 import Element.Border as Border
@@ -11,6 +11,7 @@ import Element.Input exposing (button)
 import Element.Region exposing (heading)
 import Html exposing (Html)
 import Icons exposing (pause, play, skipBack)
+import RleParser as Rle
 import Set exposing (Set)
 import Svg exposing (..)
 import Svg.Attributes as SA exposing (..)
@@ -42,9 +43,16 @@ type alias Flags =
     }
 
 
+parsedCells rle =
+    rle
+        |> Rle.parse
+        |> Result.withDefault []
+        |> Set.fromList
+
+
 initialModel : Model
 initialModel =
-    Model "/" Cell.acorn Paused 0
+    Model "/" (parsedCells Cell.frothingPuffer) Paused 0
 
 
 init : Flags -> ( Model, Cmd Msg )
