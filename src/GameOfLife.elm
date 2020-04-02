@@ -2,7 +2,8 @@ module GameOfLife exposing (Flags, Model, Msg(..), RootUrl, State(..), appButton
 
 import Browser
 import Browser.Events exposing (onAnimationFrameDelta)
-import Cell exposing (Cell, acorn, frothingPuffer, gosperGliderGun, map, procreate, rpentomino, x, y)
+import Cell exposing (Cell, transform, x, y)
+import Cell.Collection as Cells exposing (acorn, frothingPuffer, gosperGliderGun, procreate, rpentomino, toList)
 import Element as El exposing (centerX, column, el, fill, height, html, layout, padding, paddingXY, px, rgba255, row, spacing, text, width)
 import Element.Background as Bg exposing (image)
 import Element.Border as Border
@@ -11,7 +12,6 @@ import Element.Input exposing (button)
 import Element.Region exposing (heading)
 import Html exposing (Html)
 import Icons exposing (pause, play, skipBack)
-import RleParser as Rle
 import Set exposing (Set)
 import Svg exposing (..)
 import Svg.Attributes as SA exposing (..)
@@ -32,7 +32,7 @@ type alias RootUrl =
 
 type alias Model =
     { assetRoot : RootUrl
-    , liveCells : Set Cell
+    , liveCells : Cells.Collection
     , state : State
     , fps : Int
     }
@@ -43,16 +43,9 @@ type alias Flags =
     }
 
 
-parsedCells rle =
-    rle
-        |> Rle.parse
-        |> Result.withDefault []
-        |> Set.fromList
-
-
 initialModel : Model
 initialModel =
-    Model "/" (parsedCells Cell.frothingPuffer) Paused 0
+    Model "/" Cells.gosperGliderGun Paused 0
 
 
 init : Flags -> ( Model, Cmd Msg )
@@ -84,7 +77,7 @@ update msg model =
             ( { model | state = Paused }, Cmd.none )
 
         Tick interval ->
-            ( { model | liveCells = procreate model.liveCells, fps = round (1000 / interval) }, Cmd.none )
+            ( { model | liveCells = procreate 100 model.liveCells, fps = round (1000 / interval) }, Cmd.none )
 
 
 
@@ -95,7 +88,7 @@ cellForm : Float -> Int -> Int -> Cell -> Svg Msg
 cellForm radius scale translate cell =
     let
         scaled =
-            Cell.map (\coord -> coord * scale + translate)
+            Cell.transform (\coord -> coord * scale + translate)
     in
     circle
         [ cx (cell |> scaled |> Cell.x |> String.fromInt)
@@ -106,9 +99,9 @@ cellForm radius scale translate cell =
         []
 
 
-cellForms : Set Cell -> List (Svg Msg)
+cellForms : Cells.Collection -> List (Svg Msg)
 cellForms liveCells =
-    List.map (cellForm 1.5 3 300) (Set.toList liveCells)
+    List.map (cellForm 1.5 3 300) (Cells.toList liveCells)
 
 
 withBackground : Int -> Int -> List (Svg Msg) -> List (Svg Msg)

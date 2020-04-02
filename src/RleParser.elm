@@ -1,13 +1,12 @@
 module RleParser exposing (parse)
 
-import Cell exposing (Cell)
 import Parser exposing (..)
 
 
 type alias GridState =
     { x : Int
     , y : Int
-    , cellList : List Cell
+    , cellList : List ( Int, Int )
     }
 
 
@@ -23,17 +22,17 @@ init =
     }
 
 
-parse : String -> Result (List DeadEnd) (List Cell)
+parse : String -> Result (List DeadEnd) (List ( Int, Int ))
 parse =
     run cells
 
 
-cells : Parser (List Cell)
+cells : Parser (List ( Int, Int ))
 cells =
     loop init cellHelp
 
 
-cellHelp : GridState -> Parser (Step GridState (List Cell))
+cellHelp : GridState -> Parser (Step GridState (List ( Int, Int )))
 cellHelp gridState =
     oneOf
         [ succeed (addCells gridState)
@@ -59,7 +58,7 @@ cellToken =
         ]
 
 
-addCells : GridState -> Int -> CellState -> Step GridState (List Cell)
+addCells : GridState -> Int -> CellState -> Step GridState (List ( Int, Int ))
 addCells gridState count aliveOrDead =
     case aliveOrDead of
         Alive ->
@@ -89,7 +88,7 @@ addCells gridState count aliveOrDead =
             Loop updatedState
 
 
-nextLine : GridState -> Step GridState (List Cell)
+nextLine : GridState -> Step GridState (List ( Int, Int ))
 nextLine gridState =
     let
         updatedState =
