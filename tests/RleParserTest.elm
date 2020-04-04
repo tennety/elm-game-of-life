@@ -36,6 +36,9 @@ suite =
                         ]
                     )
                     (RleParser.parse "3o$obo!")
+        , test "parses blank lines" <|
+            \_ ->
+                Expect.equal (Ok [ ( 0, 0 ), ( 0, 2 ) ]) (RleParser.parse "o2$o!")
         , test "does not fail without trailing bang" <|
             \_ ->
                 Expect.equal (Ok [ ( 0, 0 ), ( 1, 0 ), ( 0, 1 ) ]) (RleParser.parse "2o$ob")
