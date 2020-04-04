@@ -3,7 +3,7 @@ module GameOfLife exposing (Flags, Model, Msg(..), RootUrl, State(..), appButton
 import Browser
 import Browser.Events exposing (onAnimationFrameDelta)
 import Cell exposing (Cell, transform, x, y)
-import Cell.Collection as Cells exposing (acorn, frothingPuffer, gosperGliderGun, procreate, rpentomino, toList)
+import Cell.Collection as Cells exposing (acorn, fromRle, frothingPuffer, gosperGliderGun, procreate, rpentomino, toList)
 import Element as El exposing (centerX, column, el, fill, height, html, layout, padding, paddingXY, px, rgba255, row, spacing, text, width)
 import Element.Background as Bg exposing (image)
 import Element.Border as Border
@@ -35,6 +35,7 @@ type alias Model =
     , liveCells : Cells.Collection
     , state : State
     , fps : Int
+    , userPattern : String
     }
 
 
@@ -45,7 +46,7 @@ type alias Flags =
 
 initialModel : Model
 initialModel =
-    Model "/" Cells.frothingPuffer Paused 0
+    Model "/" Cells.frothingPuffer Paused 0 ""
 
 
 init : Flags -> ( Model, Cmd Msg )
@@ -63,6 +64,8 @@ type Msg
     | Reset
     | Tick Float
     | UserLoadedPattern Cells.Collection
+    | UserEnteredPattern String
+    | UserSubmittedPattern
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -82,6 +85,16 @@ update msg model =
 
         UserLoadedPattern cells ->
             ( { model | liveCells = cells }, Cmd.none )
+
+        UserEnteredPattern rle ->
+            ( { model | userPattern = rle }, Cmd.none )
+
+        UserSubmittedPattern ->
+            let
+                trimmed =
+                    String.lines >> String.join ""
+            in
+            ( { model | liveCells = fromRle (trimmed model.userPattern) }, Cmd.none )
 
 
 
@@ -228,6 +241,18 @@ form model =
             , formButton (UserLoadedPattern gosperGliderGun) (model.liveCells == gosperGliderGun) (El.text "Gosper Glider Gun")
             , formButton (UserLoadedPattern frothingPuffer) (model.liveCells == frothingPuffer) (El.text "Frothing Puffer")
             ]
+        , el [ centerX, heading 2 ] (El.text "or")
+        , Element.Input.multiline
+            [ centerX, padding 5 ]
+            { onChange = UserEnteredPattern
+            , text = model.userPattern
+            , placeholder = Just <| Element.Input.placeholder [] (El.text "bob$2ob$b2o!")
+            , label = Element.Input.labelAbove [ centerX ] (El.text "Type or paste RLE below")
+            , spellcheck = False
+            }
+        , row
+            [ centerX, padding 5, El.spacing 5 ]
+            [ formButton UserSubmittedPattern True (El.text "Submit") ]
         ]
 
 
