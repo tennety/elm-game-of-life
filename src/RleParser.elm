@@ -13,6 +13,7 @@ type alias GridState =
 type CellState
     = Alive
     | Dead
+    | EmptyLine
 
 
 init =
@@ -40,7 +41,7 @@ cellHelp gridState =
             |= cellToken
         , succeed (addCells gridState 1)
             |= cellToken
-        , succeed (nextLine gridState)
+        , succeed (nextLine gridState 1)
             |. token "$"
         , succeed (Done gridState.cellList)
             |. token "!"
@@ -55,6 +56,7 @@ cellToken =
     oneOf
         [ map (\_ -> Dead) (token "b")
         , map (\_ -> Alive) (token "o")
+        , map (\_ -> EmptyLine) (token "$")
         ]
 
 
@@ -87,11 +89,14 @@ addCells gridState count aliveOrDead =
             in
             Loop updatedState
 
+        EmptyLine ->
+            nextLine gridState count
 
-nextLine : GridState -> Step GridState (List ( Int, Int ))
-nextLine gridState =
+
+nextLine : GridState -> Int -> Step GridState (List ( Int, Int ))
+nextLine gridState count =
     let
         updatedState =
-            { gridState | x = 0, y = gridState.y + 1 }
+            { gridState | x = 0, y = gridState.y + count }
     in
     Loop updatedState
