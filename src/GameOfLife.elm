@@ -192,9 +192,9 @@ view : Model -> Html Msg
 view model =
     layout [ Bg.image <| model.assetRoot ++ "images/retro-bg.jpg" ] <|
         column
-            [ El.height El.fill, El.width El.fill, centerX ]
+            [ El.height El.fill, El.width El.fill, centerX, Font.family [ Font.typeface "Courier", Font.monospace ] ]
             [ row
-                [ padding 10, El.width El.fill, Bg.color (rgba255 20 20 20 0.7), Font.family [ Font.typeface "Courier", Font.monospace ], Font.color (rgba255 200 200 200 1) ]
+                [ padding 10, El.width El.fill, Bg.color (rgba255 20 20 20 0.7), Font.color (rgba255 200 200 200 1) ]
                 [ el [ centerX, heading 1 ] (El.text "Conway's Game of Life")
                 ]
             , row
@@ -232,27 +232,30 @@ world model =
 form : Model -> El.Element Msg
 form model =
     column
-        [ centerX, padding 10, El.width (El.fillPortion 2), Font.family [ Font.typeface "Courier", Font.monospace ] ]
-        [ el [ centerX, heading 2 ] (El.text "select a form")
-        , El.wrappedRow
-            [ centerX, padding 5, El.spacing 5 ]
-            [ formButton (UserLoadedPattern rpentomino) (model.liveCells == rpentomino) (El.text "R-Pentomino")
-            , formButton (UserLoadedPattern acorn) (model.liveCells == acorn) (El.text "Acorn")
-            , formButton (UserLoadedPattern gosperGliderGun) (model.liveCells == gosperGliderGun) (El.text "Gosper Glider Gun")
-            , formButton (UserLoadedPattern frothingPuffer) (model.liveCells == frothingPuffer) (El.text "Frothing Puffer")
+        [ centerX, padding 50, El.height El.fill, El.width (El.fillPortion 2) ]
+        [ column
+            [ El.width (El.fill |> El.maximum 400), Bg.color (rgba255 255 255 255 0.7), padding 20, Border.rounded 10 ]
+            [ el [ centerX ] (El.text "Select a form")
+            , El.wrappedRow
+                [ centerX, padding 5, El.spacing 5 ]
+                [ formButton (UserLoadedPattern rpentomino) (model.liveCells == rpentomino) (El.text "R-Pentomino")
+                , formButton (UserLoadedPattern acorn) (model.liveCells == acorn) (El.text "Acorn")
+                , formButton (UserLoadedPattern gosperGliderGun) (model.liveCells == gosperGliderGun) (El.text "Gosper Glider Gun")
+                , formButton (UserLoadedPattern frothingPuffer) (model.liveCells == frothingPuffer) (El.text "Frothing Puffer")
+                ]
+            , el [ centerX, padding 20 ] (El.text "or")
+            , Element.Input.multiline
+                [ centerX, padding 10, El.height (El.fill |> El.maximum 300) ]
+                { onChange = UserEnteredPattern
+                , text = model.userPattern
+                , placeholder = Just <| Element.Input.placeholder [] (El.text "bob$2ob$b2o!")
+                , label = Element.Input.labelAbove [ centerX ] (El.text "Type or paste RLE below")
+                , spellcheck = False
+                }
+            , row
+                [ centerX, padding 5, El.spacing 5 ]
+                [ formButton UserSubmittedPattern True (El.text "Submit") ]
             ]
-        , el [ centerX, heading 2 ] (El.text "or")
-        , Element.Input.multiline
-            [ centerX, padding 5 ]
-            { onChange = UserEnteredPattern
-            , text = model.userPattern
-            , placeholder = Just <| Element.Input.placeholder [] (El.text "bob$2ob$b2o!")
-            , label = Element.Input.labelAbove [ centerX ] (El.text "Type or paste RLE below")
-            , spellcheck = False
-            }
-        , row
-            [ centerX, padding 5, El.spacing 5 ]
-            [ formButton UserSubmittedPattern True (El.text "Submit") ]
         ]
 
 

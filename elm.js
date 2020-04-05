@@ -12632,18 +12632,20 @@ var $author$project$GameOfLife$formButton = F3(
 			});
 	});
 var $author$project$Cell$Collection$gosperGliderGun = $author$project$Cell$Collection$fromRle('24bo$22bobo$12b2o6b2o12b2o$11bo3bo4b2o12b2o$2o8bo5bo3b2o$2o8bo3bob2o4bobo$10bo5bo7bo$11bo3bo$12b2o!');
-var $mdgriffith$elm_ui$Internal$Model$Heading = function (a) {
-	return {$: 4, a: a};
-};
-var $mdgriffith$elm_ui$Element$Region$heading = A2($elm$core$Basics$composeL, $mdgriffith$elm_ui$Internal$Model$Describe, $mdgriffith$elm_ui$Internal$Model$Heading);
 var $mdgriffith$elm_ui$Element$Input$Above = 2;
 var $mdgriffith$elm_ui$Element$Input$Label = F3(
 	function (a, b, c) {
 		return {$: 0, a: a, b: b, c: c};
 	});
 var $mdgriffith$elm_ui$Element$Input$labelAbove = $mdgriffith$elm_ui$Element$Input$Label(2);
-var $mdgriffith$elm_ui$Internal$Model$Monospace = {$: 2};
-var $mdgriffith$elm_ui$Element$Font$monospace = $mdgriffith$elm_ui$Internal$Model$Monospace;
+var $mdgriffith$elm_ui$Internal$Model$Max = F2(
+	function (a, b) {
+		return {$: 4, a: a, b: b};
+	});
+var $mdgriffith$elm_ui$Element$maximum = F2(
+	function (i, l) {
+		return A2($mdgriffith$elm_ui$Internal$Model$Max, i, l);
+	});
 var $mdgriffith$elm_ui$Element$Input$TextArea = {$: 1};
 var $mdgriffith$elm_ui$Internal$Model$LivePolite = {$: 6};
 var $mdgriffith$elm_ui$Element$Region$announce = $mdgriffith$elm_ui$Internal$Model$Describe($mdgriffith$elm_ui$Internal$Model$LivePolite);
@@ -13561,10 +13563,6 @@ var $mdgriffith$elm_ui$Element$row = F2(
 			$mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
 	});
 var $author$project$Cell$Collection$rpentomino = $author$project$Cell$Collection$fromRle('bob$2ob$b2o!');
-var $mdgriffith$elm_ui$Internal$Model$Typeface = function (a) {
-	return {$: 3, a: a};
-};
-var $mdgriffith$elm_ui$Element$Font$typeface = $mdgriffith$elm_ui$Internal$Model$Typeface;
 var $mdgriffith$elm_ui$Internal$Model$Padding = F5(
 	function (a, b, c, d, e) {
 		return {$: 0, a: a, b: b, c: c, d: d, e: e};
@@ -13739,105 +13737,117 @@ var $author$project$GameOfLife$form = function (model) {
 		_List_fromArray(
 			[
 				$mdgriffith$elm_ui$Element$centerX,
-				$mdgriffith$elm_ui$Element$padding(10),
+				$mdgriffith$elm_ui$Element$padding(50),
+				$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$fill),
 				$mdgriffith$elm_ui$Element$width(
-				$mdgriffith$elm_ui$Element$fillPortion(2)),
-				$mdgriffith$elm_ui$Element$Font$family(
-				_List_fromArray(
-					[
-						$mdgriffith$elm_ui$Element$Font$typeface('Courier'),
-						$mdgriffith$elm_ui$Element$Font$monospace
-					]))
+				$mdgriffith$elm_ui$Element$fillPortion(2))
 			]),
 		_List_fromArray(
 			[
 				A2(
-				$mdgriffith$elm_ui$Element$el,
+				$mdgriffith$elm_ui$Element$column,
 				_List_fromArray(
 					[
-						$mdgriffith$elm_ui$Element$centerX,
-						$mdgriffith$elm_ui$Element$Region$heading(2)
-					]),
-				$mdgriffith$elm_ui$Element$text('select a form')),
-				A2(
-				$mdgriffith$elm_ui$Element$wrappedRow,
-				_List_fromArray(
-					[
-						$mdgriffith$elm_ui$Element$centerX,
-						$mdgriffith$elm_ui$Element$padding(5),
-						$mdgriffith$elm_ui$Element$spacing(5)
+						$mdgriffith$elm_ui$Element$width(
+						A2($mdgriffith$elm_ui$Element$maximum, 400, $mdgriffith$elm_ui$Element$fill)),
+						$mdgriffith$elm_ui$Element$Background$color(
+						A4($mdgriffith$elm_ui$Element$rgba255, 255, 255, 255, 0.7)),
+						$mdgriffith$elm_ui$Element$padding(20),
+						$mdgriffith$elm_ui$Element$Border$rounded(10)
 					]),
 				_List_fromArray(
 					[
-						A3(
-						$author$project$GameOfLife$formButton,
-						$author$project$GameOfLife$UserLoadedPattern($author$project$Cell$Collection$rpentomino),
-						_Utils_eq(model.A, $author$project$Cell$Collection$rpentomino),
-						$mdgriffith$elm_ui$Element$text('R-Pentomino')),
-						A3(
-						$author$project$GameOfLife$formButton,
-						$author$project$GameOfLife$UserLoadedPattern($author$project$Cell$Collection$acorn),
-						_Utils_eq(model.A, $author$project$Cell$Collection$acorn),
-						$mdgriffith$elm_ui$Element$text('Acorn')),
-						A3(
-						$author$project$GameOfLife$formButton,
-						$author$project$GameOfLife$UserLoadedPattern($author$project$Cell$Collection$gosperGliderGun),
-						_Utils_eq(model.A, $author$project$Cell$Collection$gosperGliderGun),
-						$mdgriffith$elm_ui$Element$text('Gosper Glider Gun')),
-						A3(
-						$author$project$GameOfLife$formButton,
-						$author$project$GameOfLife$UserLoadedPattern($author$project$Cell$Collection$frothingPuffer),
-						_Utils_eq(model.A, $author$project$Cell$Collection$frothingPuffer),
-						$mdgriffith$elm_ui$Element$text('Frothing Puffer'))
-					])),
-				A2(
-				$mdgriffith$elm_ui$Element$el,
-				_List_fromArray(
-					[
-						$mdgriffith$elm_ui$Element$centerX,
-						$mdgriffith$elm_ui$Element$Region$heading(2)
-					]),
-				$mdgriffith$elm_ui$Element$text('or')),
-				A2(
-				$mdgriffith$elm_ui$Element$Input$multiline,
-				_List_fromArray(
-					[
-						$mdgriffith$elm_ui$Element$centerX,
-						$mdgriffith$elm_ui$Element$padding(5)
-					]),
-				{
-					aV: A2(
-						$mdgriffith$elm_ui$Element$Input$labelAbove,
+						A2(
+						$mdgriffith$elm_ui$Element$el,
 						_List_fromArray(
 							[$mdgriffith$elm_ui$Element$centerX]),
-						$mdgriffith$elm_ui$Element$text('Type or paste RLE below')),
-					dA: $author$project$GameOfLife$UserEnteredPattern,
-					dJ: $elm$core$Maybe$Just(
+						$mdgriffith$elm_ui$Element$text('Select a form')),
 						A2(
-							$mdgriffith$elm_ui$Element$Input$placeholder,
-							_List_Nil,
-							$mdgriffith$elm_ui$Element$text('bob$2ob$b2o!'))),
-					dX: false,
-					d2: model.aJ
-				}),
-				A2(
-				$mdgriffith$elm_ui$Element$row,
-				_List_fromArray(
-					[
-						$mdgriffith$elm_ui$Element$centerX,
-						$mdgriffith$elm_ui$Element$padding(5),
-						$mdgriffith$elm_ui$Element$spacing(5)
-					]),
-				_List_fromArray(
-					[
-						A3(
-						$author$project$GameOfLife$formButton,
-						$author$project$GameOfLife$UserSubmittedPattern,
-						true,
-						$mdgriffith$elm_ui$Element$text('Submit'))
+						$mdgriffith$elm_ui$Element$wrappedRow,
+						_List_fromArray(
+							[
+								$mdgriffith$elm_ui$Element$centerX,
+								$mdgriffith$elm_ui$Element$padding(5),
+								$mdgriffith$elm_ui$Element$spacing(5)
+							]),
+						_List_fromArray(
+							[
+								A3(
+								$author$project$GameOfLife$formButton,
+								$author$project$GameOfLife$UserLoadedPattern($author$project$Cell$Collection$rpentomino),
+								_Utils_eq(model.A, $author$project$Cell$Collection$rpentomino),
+								$mdgriffith$elm_ui$Element$text('R-Pentomino')),
+								A3(
+								$author$project$GameOfLife$formButton,
+								$author$project$GameOfLife$UserLoadedPattern($author$project$Cell$Collection$acorn),
+								_Utils_eq(model.A, $author$project$Cell$Collection$acorn),
+								$mdgriffith$elm_ui$Element$text('Acorn')),
+								A3(
+								$author$project$GameOfLife$formButton,
+								$author$project$GameOfLife$UserLoadedPattern($author$project$Cell$Collection$gosperGliderGun),
+								_Utils_eq(model.A, $author$project$Cell$Collection$gosperGliderGun),
+								$mdgriffith$elm_ui$Element$text('Gosper Glider Gun')),
+								A3(
+								$author$project$GameOfLife$formButton,
+								$author$project$GameOfLife$UserLoadedPattern($author$project$Cell$Collection$frothingPuffer),
+								_Utils_eq(model.A, $author$project$Cell$Collection$frothingPuffer),
+								$mdgriffith$elm_ui$Element$text('Frothing Puffer'))
+							])),
+						A2(
+						$mdgriffith$elm_ui$Element$el,
+						_List_fromArray(
+							[
+								$mdgriffith$elm_ui$Element$centerX,
+								$mdgriffith$elm_ui$Element$padding(20)
+							]),
+						$mdgriffith$elm_ui$Element$text('or')),
+						A2(
+						$mdgriffith$elm_ui$Element$Input$multiline,
+						_List_fromArray(
+							[
+								$mdgriffith$elm_ui$Element$centerX,
+								$mdgriffith$elm_ui$Element$padding(10),
+								$mdgriffith$elm_ui$Element$height(
+								A2($mdgriffith$elm_ui$Element$maximum, 300, $mdgriffith$elm_ui$Element$fill))
+							]),
+						{
+							aV: A2(
+								$mdgriffith$elm_ui$Element$Input$labelAbove,
+								_List_fromArray(
+									[$mdgriffith$elm_ui$Element$centerX]),
+								$mdgriffith$elm_ui$Element$text('Type or paste RLE below')),
+							dA: $author$project$GameOfLife$UserEnteredPattern,
+							dJ: $elm$core$Maybe$Just(
+								A2(
+									$mdgriffith$elm_ui$Element$Input$placeholder,
+									_List_Nil,
+									$mdgriffith$elm_ui$Element$text('bob$2ob$b2o!'))),
+							dX: false,
+							d2: model.aJ
+						}),
+						A2(
+						$mdgriffith$elm_ui$Element$row,
+						_List_fromArray(
+							[
+								$mdgriffith$elm_ui$Element$centerX,
+								$mdgriffith$elm_ui$Element$padding(5),
+								$mdgriffith$elm_ui$Element$spacing(5)
+							]),
+						_List_fromArray(
+							[
+								A3(
+								$author$project$GameOfLife$formButton,
+								$author$project$GameOfLife$UserSubmittedPattern,
+								true,
+								$mdgriffith$elm_ui$Element$text('Submit'))
+							]))
 					]))
 			]));
 };
+var $mdgriffith$elm_ui$Internal$Model$Heading = function (a) {
+	return {$: 4, a: a};
+};
+var $mdgriffith$elm_ui$Element$Region$heading = A2($elm$core$Basics$composeL, $mdgriffith$elm_ui$Internal$Model$Describe, $mdgriffith$elm_ui$Internal$Model$Heading);
 var $mdgriffith$elm_ui$Element$Background$image = function (src) {
 	return $mdgriffith$elm_ui$Internal$Model$Attr(
 		A2($elm$virtual_dom$VirtualDom$style, 'background', 'url(\"' + (src + '\") center / cover no-repeat')));
@@ -13990,6 +14000,9 @@ var $mdgriffith$elm_ui$Internal$Model$FontSize = function (a) {
 	return {$: 2, a: a};
 };
 var $mdgriffith$elm_ui$Internal$Model$SansSerif = {$: 1};
+var $mdgriffith$elm_ui$Internal$Model$Typeface = function (a) {
+	return {$: 3, a: a};
+};
 var $mdgriffith$elm_ui$Internal$Flag$fontSize = $mdgriffith$elm_ui$Internal$Flag$flag(4);
 var $mdgriffith$elm_ui$Internal$Model$rootStyle = function () {
 	var families = _List_fromArray(
@@ -14051,6 +14064,9 @@ var $mdgriffith$elm_ui$Element$layoutWith = F3(
 	});
 var $mdgriffith$elm_ui$Element$layout = $mdgriffith$elm_ui$Element$layoutWith(
 	{dG: _List_Nil});
+var $mdgriffith$elm_ui$Internal$Model$Monospace = {$: 2};
+var $mdgriffith$elm_ui$Element$Font$monospace = $mdgriffith$elm_ui$Internal$Model$Monospace;
+var $mdgriffith$elm_ui$Element$Font$typeface = $mdgriffith$elm_ui$Internal$Model$Typeface;
 var $author$project$GameOfLife$Reset = {$: 2};
 var $mdgriffith$elm_ui$Element$html = $mdgriffith$elm_ui$Internal$Model$unstyled;
 var $author$project$GameOfLife$appButton = F2(
@@ -14347,7 +14363,13 @@ var $author$project$GameOfLife$view = function (model) {
 				[
 					$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$fill),
 					$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
-					$mdgriffith$elm_ui$Element$centerX
+					$mdgriffith$elm_ui$Element$centerX,
+					$mdgriffith$elm_ui$Element$Font$family(
+					_List_fromArray(
+						[
+							$mdgriffith$elm_ui$Element$Font$typeface('Courier'),
+							$mdgriffith$elm_ui$Element$Font$monospace
+						]))
 				]),
 			_List_fromArray(
 				[
@@ -14359,12 +14381,6 @@ var $author$project$GameOfLife$view = function (model) {
 							$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
 							$mdgriffith$elm_ui$Element$Background$color(
 							A4($mdgriffith$elm_ui$Element$rgba255, 20, 20, 20, 0.7)),
-							$mdgriffith$elm_ui$Element$Font$family(
-							_List_fromArray(
-								[
-									$mdgriffith$elm_ui$Element$Font$typeface('Courier'),
-									$mdgriffith$elm_ui$Element$Font$monospace
-								])),
 							$mdgriffith$elm_ui$Element$Font$color(
 							A4($mdgriffith$elm_ui$Element$rgba255, 200, 200, 200, 1))
 						]),
