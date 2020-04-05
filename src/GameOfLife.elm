@@ -11,7 +11,7 @@ import Element.Font as Font
 import Element.Input exposing (button)
 import Element.Region exposing (heading)
 import Html exposing (Html)
-import Icons exposing (pause, play, skipBack)
+import Icons exposing (externalLink, pause, play, skipBack)
 import Set exposing (Set)
 import Svg exposing (..)
 import Svg.Attributes as SA exposing (..)
@@ -208,9 +208,9 @@ view model =
 world : Model -> El.Element Msg
 world model =
     column
-        [ centerX, padding 50, El.width (El.fillPortion 3) ]
+        [ padding 50, El.width (El.fillPortion 3) ]
         [ row
-            [ centerX, El.height (px 600) ]
+            [ El.alignRight, El.height (px 600) ]
             [ model.liveCells
                 |> cellForms
                 |> withBackground 600 600
@@ -218,13 +218,10 @@ world model =
                 |> html
             ]
         , row
-            [ centerX, padding 5, El.spacing 5 ]
-            [ playButton model.state
-            , appButton Reset Icons.skipBack
-            ]
-        , row
-            [ centerX, padding 5, El.spacing 10 ]
+            [ El.alignRight, padding 5, El.spacing 5 ]
             [ el [ centerX ] (El.text <| "fps:" ++ (model.fps |> String.fromInt))
+            , playButton model.state
+            , appButton Reset Icons.skipBack
             ]
         ]
 
@@ -245,7 +242,7 @@ form model =
                 ]
             , el [ centerX, padding 20 ] (El.text "or")
             , Element.Input.multiline
-                [ centerX, padding 10, El.height (El.fill |> El.maximum 300) ]
+                [ centerX, padding 10, El.height (El.fill |> El.maximum 200) ]
                 { onChange = UserEnteredPattern
                 , text = model.userPattern
                 , placeholder = Just <| Element.Input.placeholder [] (El.text "bob$2ob$b2o!")
@@ -255,6 +252,16 @@ form model =
             , row
                 [ centerX, padding 5, El.spacing 5 ]
                 [ formButton UserSubmittedPattern True (El.text "Submit") ]
+            , El.paragraph
+                [ El.paddingEach { top = 30, right = 0, bottom = 10, left = 0 } ]
+                [ El.text "You can find a list of RLE pattern files "
+                , El.newTabLink
+                    []
+                    { url = "https://copy.sh/life/examples/"
+                    , label = El.text "here."
+                    }
+                , el [ El.height (px 20), Font.color (rgba255 50 50 50 0.8) ] (html externalLink)
+                ]
             ]
         ]
 

@@ -2,7 +2,8 @@
 
 
 module Icons exposing
-    ( pause
+    ( externalLink
+    , pause
     , play
     , skipBack
     )
@@ -47,4 +48,13 @@ skipBack =
     svgFeatherIcon "skip-back"
         [ Svg.polygon [ points "19 20 9 12 19 4 19 20" ] []
         , Svg.line [ x1 "5", y1 "19", x2 "5", y2 "5" ] []
+        ]
+
+
+externalLink : Html msg
+externalLink =
+    svgFeatherIcon "external-link"
+        [ Svg.path [ d "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" ] []
+        , Svg.polyline [ points "15 3 21 3 21 9" ] []
+        , Svg.line [ x1 "10", y1 "14", x2 "21", y2 "3" ] []
         ]
