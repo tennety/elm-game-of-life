@@ -193,9 +193,19 @@ view model =
     layout [ Bg.image <| model.assetRoot ++ "images/retro-bg.jpg" ] <|
         column
             [ El.height El.fill, El.width El.fill, centerX, Font.family [ Font.typeface "Courier", Font.monospace ] ]
-            [ row
-                [ padding 10, El.width El.fill, Bg.color (rgba255 20 20 20 0.7), Font.color (rgba255 200 200 200 1) ]
-                [ el [ centerX, heading 1 ] (El.text "Conway's Game of Life")
+            [ column
+                [ centerX, El.spacing 10, padding 10, El.width El.fill, Bg.color (rgba255 20 20 20 0.7), Font.color (rgba255 200 200 200 1) ]
+                [ el [ centerX, heading 1, Font.size 30 ] (El.text "Conway's Game of Life")
+                , row
+                    [ centerX ]
+                    [ El.text "Dedicated to "
+                    , El.newTabLink
+                        []
+                        { url = "https://en.wikipedia.org/wiki/John_Horton_Conway#Death"
+                        , label = El.text "John Conway"
+                        }
+                    , el [ El.height (px 20), Font.color (rgba255 150 150 150 0.8) ] (html externalLink)
+                    ]
                 ]
             , row
                 [ El.width El.fill ]
